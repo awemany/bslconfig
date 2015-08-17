@@ -1,0 +1,182 @@
+\NeedsTeXFormat{LaTeX2e}
+
+\documentclass[11pt,a4paper]{article}
+\usepackage{microtype}
+\usepackage{hyperref}
+
+\begin{document}
+
+\title{Configurable Maximum Block Size Limit}
+
+\author{reddit.com/u/Peter\_\_R \and reddit.com/u/awemany}
+\date{August 17th, 2015}
+\maketitle
+
+\section*{Introduction} 
+
+A lot has been said about the Bitcoin maximum blocksize limit
+ (BSL)\cite{bitcoin-scalability} in many heated arguments during the
+ last few months. For solving this issue, a number of proposals have
+ been made, such as BIP100\cite{bip100-draft}, BIP101\cite{bip101} and
+ BIP102\cite{bip102}.
+
+Common to all the BSL proposals is an algorithm (which in some cases is
+as simple as a predetermined schedule) that will be used for
+determining the blocksize.
+
+The most prominent Bitcoin implementation is the \texttt{Bitcoin/Core}
+client\cite{bitcoin-core}, which has been considered to be the
+\emph{reference implementation} until recently. The developers
+working on this client agreed on a process of reaching human and
+political consensus before implementing a change to the Bitcoin
+system, to avoid overriding user's wishes with controversial changes.
+
+Unfortunately, none of the proposals dealing with blocksize have
+reached consensus so far. Arguably, progress on an agreement regarding
+BSL is deadlocked due to irreconcilable positions of many
+\texttt{Bitcoin/Core} developers and the wider community.
+
+
+\section*{The proposal} 
+To solve this contention, we argue that the best approach forward is
+ for all involved parties on the developer side to \emph{completely
+ step back from actually making a concrete decision on the BSL, and
+ leave it completely up to the users of the software to set this
+ limit}.
+
+To be more specific, we argue that the currently implemented 1MB limit
+in \texttt{Bitcoin/Core}, which was introduced\cite{1mb-introduction} as a temporary anti-spam measure
+by Bitcoin's original author will be replaced with a
+freely selectable limit that every node operator can set individually.
+
+We propose a command line argument for the \texttt{bitcoind}
+application named \texttt{-blockmaxsizelimit} that takes a numerical
+integer argument (measured in bytes) and which will replace what is
+formerly the hard-coded \texttt{MAX\_BLOCK\_SIZE} constant in the
+code.
+
+For the QT GUI client \texttt{bitcoin-qt}, we propose an edit-box for
+replacing the \texttt{MAX\_BLOCK\_SIZE} constant, appearing in a modal
+dialog upon start up of the application, necessary to be confirmed upon
+each start.
+
+This edit-box respectively command line argument will be evaluated at
+program start and the set BSL is deemed to be valid until the program
+terminates.
+
+We further propose that until January 11th 2016, specifying the\linebreak
+\texttt{-blockmaxsizelimit} argument is optional and will default to
+the current value of 1MB. Equally, the corresponding setting for
+\texttt{bitcoin-qt} should be pre-filled with a value of $1000000$
+until this date.
+
+At the switchover date of January, 11th 2016 00:00 UTC (as determined
+by the local system clock), the default setting of 1MB will
+disappear, and the \texttt{-blockmaxsizelimit} argument will become
+mandatory. In the QT GUI, the edit box will become empty and mandatory
+to be filled for any further operation of the software.
+
+\paragraph{Bitcoin packages.} We suggest that agreement to this
+proposal includes urging any Bitcoin package maintainers to refrain
+from providing a default. Setting the limit should be left to the
+node operator or system administrator.
+
+\paragraph{The 32MB network message limit.} Agreement to this proposal
+should be taken as an endorsement for eventually making all parts of Bitcoin
+sufficiently flexible to support \emph{any} integer blocksize
+limit. Notably, no historical, technical limit in the code should be
+assumed to be an in any way intended BSL.
+
+
+\section*{Rationale} Much has been said about the dangers of fracturing
+the Bitcoin network through introducing incompatible clients that are
+unable to talk to each other and form a common consensus.
+
+We share these concerns to some extend, observe however, that
+participants in the Bitcoin ecosystem have a strong incentive to
+create a working consensus network.
+
+\paragraph{Decentralized decision making.} Bitcoin is commonly seen as
+being all about \emph{decentralized consensus}. The reference
+implementation creates a central place for \emph{information
+exchange}, but we propose that it should refrain from becoming a
+central place for \emph{decision making}. Especially so for
+controversial decisions. 
+
+\paragraph{User-centered software development.} We further argue that
+software is developed for the needs of users and in any sane software
+development environment, the software implementation follows, as much
+as it is reasonably possible, the needs of the users and not the
+personal preferences of developers.
+
+In light of the widespread controversy, \texttt{Bitcoin/Core} developers can
+avoid the power as well as taking the responsibility to make this
+decision by putting it back to the decentralized set of users of the
+network.
+
+\paragraph{Harnessing collective wisdom.}  Further, due to the
+controversy involving this variable, and our admission of the lack of
+knowledge about its perfect value, we expect a node operator community
+that is well-educated about this issue to be the best bet at
+decentrally approximating the true, but unknown, optimal value.
+
+
+\paragraph{Selecting a switchover date in the future.} Having a
+switchover date in the future gives enough time to allow to educate
+full node operators sufficiently on this important change. We chose
+the above date because it is coincident with BIP101's
+activation. BIP101 already achieved some popularity through the
+\texttt{Bitcoin/XT} node software variant\cite{bitcoin-xt} and the principle of
+least surprise suggests to pick the same date. It should be noted that
+this proposal is in no way meant as an endorsal of BIP101.
+
+
+\section{Further extensions} 
+The above description of a static limit that is valid during the
+runtime of \texttt{bitcoind} and \texttt{bitcoin-qt} could be replaced
+with a limit that can be set live, for example through a secure
+JSON-RPC call.
+
+An external program, a `BSL governor' can then be used to specify the
+maximum block size limit of the full node. Many such governors could
+exist, completely independent of any particular Bitcoin protocol
+implementation.
+
+Such a scheme would also allow to implement all current BIPs
+concerning the blocksize with an external program, further
+decentralizing the decision on block size.
+
+\section*{Attribution}
+It should be made clear that what is
+discussed here is in no way an original idea of the authors of this
+proposal. It has been discussed earlier, for example on
+the \texttt{Bitcoin/Core mailing} list\cite{idea-config}.
+
+
+\begin{thebibliography}{9}
+\bibitem{bitcoin-scalability}
+  Bitcoin Scalability, Bitcoin Wiki, \url{https://en.bitcoin.it/w/index.php?title=Scalability&oldid=57432}
+
+\bibitem{bip100-draft}
+  BIP100 v0.8.1 draft, Jeff Garzik, \url{http://gtf.org/garzik/bitcoin/BIP100-blocksizechangeproposal.pdf}
+
+\bibitem{bip101}
+  BIP101, Gavin Andresen, \url{https://github.com/bitcoin/bips/blob/master/bip-0101.mediawiki}
+
+\bibitem{bip102}
+  BIP102, Jeff Garzik, \url{https://github.com/bitcoin/bitcoin/pull/6451}
+
+\bibitem{bitcoin-core}
+  The \texttt{Bitcoin/Core} client, \url{https://github.com/bitcoin/bitcoin}
+
+\bibitem{bitcoin-xt}
+ The \texttt{Bitcoin/XT} client, \url{https://bitcoinxt.software/}
+
+\bibitem{idea-config}
+  [bitcoin-dev] Bitcoin Core and hard forks, Cory Fields, \url{http://lists.linuxfoundation.org/pipermail/bitcoin-dev/2015-July/009544.html}
+
+\bibitem{1mb-introduction}
+  Introduction of the 1MB constant, Satoshi Nakamoto, \url{https://github.com/bitcoin/bitcoin/commit/a30b56ebe76ffff9f9cc8a6667186179413c6349}
+
+\end{thebibliography}
+\end{document}
